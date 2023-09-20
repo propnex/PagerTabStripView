@@ -17,50 +17,76 @@ internal struct ScrollableNavBarView: View {
     public init(selection: Binding<Int>) {
         self._selection = selection
     }
-
+    
     var body: some View {
         ScrollViewReader { value in
-            ScrollView(.horizontal, showsIndicators: false) {
-                VStack {
-                    HStack(spacing: style.tabItemSpacing) {
-                        if dataStore.itemsCount > 0 {
-                            ForEach(0..<dataStore.itemsCount, id: \.self) { idx in
-                                NavBarItem(id: idx, selection: $selection)
+            VStack(spacing: -(style.indicatorBarHeight / 2)) {
+                
+                // Horizontal ScrollView containing the Navigation Items and the Indicator
+                ScrollView(.horizontal, showsIndicators: false) {
+                    VStack {
+                        
+                        // List of Navigation Items
+                        HStack(spacing: style.tabItemSpacing) {
+                            if dataStore.itemsCount > 0 {
+                                ForEach(0..<dataStore.itemsCount, id: \.self) { idx in
+                                    NavBarItem(id: idx, selection: $selection)
+                                }
                             }
                         }
-                    }
-                    IndicatorScrollableBarView(selection: $selection)
-                }
-                .frame(height: self.style.tabItemHeight)
-            }
-            .padding(self.style.padding)
-            .onChange(of: switchAppeared) { _ in
-                // This is necessary because anchor: .center is not working correctly
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    var remainingItemsWidth = dataStore.items[selection]?.itemWidth ?? 0 / 2
-                    let items = dataStore.items.filter { index, _ in
-                        index > selection
-                    }
-                    remainingItemsWidth += items.map({return $0.value.itemWidth ?? 0}).reduce(0, +)
-                    remainingItemsWidth += CGFloat(dataStore.items.count-1 - selection)*style.tabItemSpacing
-                    let centerSel = remainingItemsWidth > settings.width/2
-                    if centerSel {
-                        value.scrollTo(selection, anchor: .center)
-                    } else {
-                        value.scrollTo(dataStore.items.count-1)
+                        
+                        // Indicator Bar View
+                        IndicatorScrollableBarView(selection: $selection)
+                            .frame(height: style.indicatorBarHeight)
+                        
                     }
                 }
-            }
-            .onChange(of: self.selection) { newSelection in
-                withAnimation {
-                    value.scrollTo(newSelection, anchor: .center)
+                .padding(self.style.padding)
+                
+                // Handler to reposition scroll when `switchAppeared` changes
+                .onChange(of: switchAppeared) { _ in
+                    // This is necessary because anchor: .center is not working correctly
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        adjustScrollPosition(value)
+                    }
                 }
+                
+                // Handler to reposition scroll when `selection` changes
+                .onChange(of: self.selection) { newSelection in
+                    withAnimation {
+                        value.scrollTo(newSelection, anchor: .center)
+                    }
+                }
+                
+                // Optional Bottom Divider based on style configuration
+                if style.showBottomDivider {
+                    Divider()
+                }
+                
             }
+            .frame(height: self.style.tabItemHeight)
         }
         .onAppear {
-            switchAppeared = !switchAppeared
+            switchAppeared.toggle()
         }
     }
+
+    // Helper function to adjust the scroll position based on the item selected and its position
+    private func adjustScrollPosition(_ value: ScrollViewProxy) {
+        var remainingItemsWidth = (dataStore.items[selection]?.itemWidth ?? 0) / 2
+        let itemsAfterSelection = dataStore.items.filter { index, _ in
+            index > selection
+        }
+        remainingItemsWidth += itemsAfterSelection.map { $0.value.itemWidth ?? 0 }.reduce(0, +)
+        remainingItemsWidth += CGFloat(dataStore.items.count - 1 - selection) * style.tabItemSpacing
+        let shouldCenterSelectedItem = remainingItemsWidth > settings.width / 2
+        if shouldCenterSelectedItem {
+            value.scrollTo(selection, anchor: .center)
+        } else {
+            value.scrollTo(dataStore.items.count - 1)
+        }
+    }
+
 
     @Environment(\.pagerStyle) var style: PagerStyle
     @EnvironmentObject private var settings: PagerSettings

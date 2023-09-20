@@ -24,12 +24,9 @@ struct NavBarItem: View {
                     self.currentIndex = id
                 }, label: {
                     dataStore.items[id]?.view
-                }).buttonStyle(PlainButtonStyle())
-                .foregroundColor(id == currentIndex ? Color.accentColor : .primary )
-                .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity) { pressing in
-                    dataStore.items[id]?.tabViewDelegate?.setState(state: pressing ? .highlighted :
-                                                                    (id == currentIndex ? .selected : .normal))
-                } perform: {}
+                })
+                .buttonStyle(PlainButtonStyle())
+                .foregroundColor(id == currentIndex ? Color.accentColor : .gray)
             }.background(
                 GeometryReader { geometry in
                     Color.clear.onAppear {
