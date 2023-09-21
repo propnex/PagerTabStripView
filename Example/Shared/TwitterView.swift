@@ -50,7 +50,7 @@ struct TwitterView: View {
             }
         }
         .frame(alignment: .center)
-        .pagerTabStripViewStyle(.scrollableBarButton(indicatorBarColor: .blue, tabItemSpacing: 15, tabItemHeight: 50, showBottomDivider: true))
+        .pagerTabStripViewStyle(.scrollableBarButton(indicatorBarColor: .blue, tabItemSpacing: 15, tabItemHeight: 50, showBottomDivider: true, font: .subheadline.bold()))
         .navigationBarTitleDisplayMode(.inline)
     }
 }

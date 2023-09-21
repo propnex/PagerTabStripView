@@ -25,6 +25,7 @@ struct NavBarItem: View {
                 }, label: {
                     dataStore.items[id]?.view
                 })
+                .padding(.horizontal)
                 .buttonStyle(PlainButtonStyle())
                 .foregroundColor(id == currentIndex ? Color.accentColor : .gray)
             }.background(

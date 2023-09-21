@@ -21,7 +21,6 @@ struct TwitterNavBarItem: View, PagerTabViewDelegate {
         VStack {
             Text(title)
                 .foregroundColor(theme.textColor)
-                .font(.subheadline.bold())
         }
         .background(Color.clear)
     }

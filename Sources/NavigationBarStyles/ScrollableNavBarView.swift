@@ -34,6 +34,7 @@ internal struct ScrollableNavBarView: View {
                                 }
                             }
                         }
+                        .font(style.font)
                         
                         // Indicator Bar View
                         IndicatorScrollableBarView(selection: $selection)
