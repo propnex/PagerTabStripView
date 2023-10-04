@@ -124,8 +124,10 @@ private struct WrapperPagerTabStripView<Content>: View where Content: View {
                 self.currentOffset = -(CGFloat(selection) * geo.width)
             })
             .onChange(of: gproxy.frame(in: .local), perform: { geo in
-                self.settings.width = geo.width
-                self.currentOffset = -(CGFloat(selection) * geo.width)
+                DispatchQueue.main.async {
+                    self.settings.width = geo.width
+                    self.currentOffset = -(CGFloat(selection) * geo.width)
+                }
             })
             .onChange(of: self.selection) { [selection] newIndex in
                 self.currentOffset = -(CGFloat(newIndex) * gproxy.size.width)
